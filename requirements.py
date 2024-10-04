@@ -1,0 +1,10 @@
+llama-index
+llama-index-agent-openai
+llama-index-llms-openai
+llama-index-tools-code-interpreter
+llama-index-llms-huggingface
+llama-index-embeddings-huggingface
+llama-index-utils-workflow
+matplotlib
+seaborn
+scikit-learn

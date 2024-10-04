@@ -1,0 +1,8 @@
+# ml-copilot/.gitignore
+
+__pycache__/
+*.pyc
+dist/
+build/
+*.egg-info/
+.env

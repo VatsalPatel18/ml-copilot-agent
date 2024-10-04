@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "ml-copilot-agent"
+version = "0.1.0"
+description = "\"It is a Machine Learning Copilot Agent that can execute code for end-to-end ML Cycle\""
+authors = ["VatsalPatel18 <vatsal1804@gmail.com>"]
+license = "CC-BY-NA-4.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+llama-index = "0.11.16"
+llama-index-agent-openai = "0.3.4"
+llama-index-llms-openai = "0.2.11"
+llama-index-tools-code-interpreter = "0.2.0"
+llama-index-llms-huggingface = "0.3.4"
+llama-index-embeddings-huggingface = "0.3.1"
+llama-index-utils-workflow = "0.2.1"
+matplotlib = "3.8.0"
+seaborn = "0.11.2"
+scikit-learn = "1.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
