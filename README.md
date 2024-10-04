@@ -1,4 +1,4 @@
-# ML-Copilot
+# ML-Copilot-Agent
 
 ML-Copilot is an interactive machine learning assistant that streamlines the process of data preprocessing, model training, evaluation, plotting results, and generating documentation—all through a command-line interface powered by OpenAI's GPT models.
 
