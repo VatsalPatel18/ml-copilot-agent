@@ -1,4 +1,4 @@
-# ml_copilot/__main__.py
+# ml_copilot_agent/__main__.py
 
 import asyncio
 import sys
@@ -8,7 +8,7 @@ from . import initialize
 
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python -m ml_copilot <OPENAI_API_KEY>")
+        print("Usage: python -m ml_copilot_agent <OPENAI_API_KEY>")
         sys.exit(1)
     api_key = sys.argv[1]
     initialize(api_key)

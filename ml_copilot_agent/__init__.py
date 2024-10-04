@@ -1,4 +1,4 @@
-# ml_copilot/__init__.py
+# ml_copilot_agent/__init__.py
 
 import os
 from llama_index.llms.openai import OpenAI

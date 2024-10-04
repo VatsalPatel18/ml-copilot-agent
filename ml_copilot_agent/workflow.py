@@ -16,7 +16,7 @@ from llama_index.llms.openai import OpenAI
 
 # If you need Settings or draw_all_possible_flows
 from llama_index.core import Settings
-from llama_index.utils.workflow import draw_most_recent_execution
+from llama_index.utils.workflow import draw_all_possible_flows
 
 
 # Define Events
@@ -350,9 +350,8 @@ Save the report to '{report_save_path}'.
 # Run the Workflow
 async def main():
     workflow = MLWorkflow(timeout=600, verbose=True)
+    draw_all_possible_flows(workflow, filename="MLCopilot_workflow.html")
     await workflow.run()
-
-    draw_most_recent_execution(workflow, filename="MLCopilot_workflow_recent.html")
 
 if __name__ == "__main__":
     asyncio.run(main())
