@@ -1,8 +1,10 @@
 # ML-Copilot-Agent
 
-ML-Copilot is an interactive machine learning assistant that streamlines the process of data preprocessing, model training, evaluation, plotting results, and generating documentation—all through a command-line interface powered by OpenAI's GPT models.
+ML-Copilot is an interactive machine learning assistant that streamlines the process of data preprocessing, model training, evaluation, plotting results, and generating documentation—all through a command-line interface powered by OpenAI's GPT 4o.
 
-## Features
+The framework is build as an llm-agent with llama-index workflow, which is able to execute realtime code through code-intepreter which is present as a tool with the llm-agenmt. 
+
+## LLM-Agent-Features
 
 - **List Files**: View files in the current directory.
 - **Data Preprocessing**: Preprocess data for binary classification tasks with customizable instructions.
@@ -62,7 +64,7 @@ Once started, ML-Copilot will prompt you for commands. You can enter any of the 
 - `train`: Train a binary classification model.
 - `evaluate`: Evaluate the trained model.
 - `plot`: Generate plots from data or evaluation results.
-- `document`: Generate a documentation report.
+- `document`: Generate a documentation report. (Under Development)
 - `exit`: Terminate the workflow.
 
 ### Example Workflow
