@@ -3,7 +3,7 @@ name = "ml-copilot-agent"
 version = "0.1.3"
 description = "\"It is a Machine Learning Copilot Agent that can execute code for end-to-end ML Cycle\""
 authors = ["VatsalPatel18 <vatsal1804@gmail.com>"]
-license = "CC-BY-NA-4.0"
+license = "CC-BY-NC-ND-4.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]

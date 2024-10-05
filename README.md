@@ -164,7 +164,7 @@ Contributions are welcome! Please follow these steps:
 
 ## License
 
-This project is licensed under the MIT License. See the `LICENSE` file for details.
+This project is licensed under the CC-BY-NC-ND-4.0 License.
 
 ## Acknowledgments
 
@@ -172,6 +172,6 @@ This project is licensed under the MIT License. See the `LICENSE` file for detai
 
 ## Contact
 
-For any questions or suggestions, feel free to open an issue or contact the repository owner.
+For any questions or suggestions, feel free to open an issue or contact vatsal1804@gmail.com.
 
 
