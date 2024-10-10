@@ -27,6 +27,9 @@ class InitializeEvent(Event):
 class ML_Copilot(Event):
     user_input: str
 
+class CustomEvent(Event):
+    custom_instruction: str
+
 class ListFilesEvent(Event):
     pass
 
@@ -71,12 +74,12 @@ class MLWorkflow(Workflow):
         # Initialize context data
         await ctx.set('files', os.listdir('.'))
         print("Welcome to ML-Copilot! How can I assist you today?")
-        print("I can do the following things: 'show files', 'preprocess data', 'train model', 'evaluate model', 'plot results', 'generate report', or 'exit'.")
+        print("I can do the following things: 'show files', 'preprocess data', 'train model', 'evaluate model', 'plot results', 'generate report',  'custom instruction', or 'exit'.")
         user_input = input("> ").strip()
         return ML_Copilot(user_input=user_input)
 
     @step
-    async def agent(self, ctx: Context, ev: ML_Copilot) -> ML_Copilot | ListFilesEvent | PreprocessEvent| TrainEvent | EvaluateEvent | DocumentEvent | PlotEvent | StopEvent :
+    async def ml_copilot(self, ctx: Context, ev: ML_Copilot) -> ML_Copilot | ListFilesEvent | PreprocessEvent| TrainEvent | EvaluateEvent | DocumentEvent | PlotEvent | StopEvent :
 
         user_input = ev.user_input.lower()
         
@@ -138,15 +141,50 @@ class MLWorkflow(Workflow):
                 print("Invalid option.")
                 user_input = input("> ").strip()
                 return ML_Copilot(user_input=user_input)
+            
+        elif "custom" in user_input or "instruction" in user_input:
+            print("Please enter your custom instruction:")
+            custom_instruction = input("> ").strip()
+            return CustomEvent(custom_instruction=custom_instruction)
 
         else:
             print("I'm sorry, I didn't understand that command.")
-            print("You can ask me to 'show files', 'preprocess data', 'train model', 'evaluate model', 'generate report', or 'exit'.")
+            print("You can ask me to 'Show files', 'Preprocess Data', 'Train Model', 'Evaluate Model', 'Plot Results', 'Generate Report', 'Custom Instructions' or 'exit'.")
             user_input = input("> ").strip()
             return ML_Copilot(user_input=user_input)
-
+        
     @step
-    async def list_files(self, ctx: Context, ev: ListFilesEvent) -> PreprocessEvent | ML_Copilot | ListFilesEvent:
+    async def custom_instruction(self, ctx: Context, ev: CustomEvent) -> Union[CustomEvent, ML_Copilot, StopEvent]:
+        custom_instruction = ev.custom_instruction
+        print(f"Executing your custom instruction: {custom_instruction}")
+        
+        prompt = f"""
+Please execute the following instruction:
+
+{custom_instruction}
+"""
+        
+        # Use the agent to generate and execute code asynchronously
+        response = await asyncio.get_event_loop().run_in_executor(
+            None, self.agent.chat, prompt
+        )
+        
+        # Print the agent's response
+        print(response)
+        
+        print("Do you want to enter another set of custom instruction? (yes/no)")
+        user_response = input("> ").strip().lower()
+        if user_response in ('yes', 'y'):
+            print("Please enter your custom instruction:")
+            user_input = input("> ").strip()
+            return CustomEvent(custom_instruction=user_input)
+        else:
+            print("What would you like to do next?")
+            user_input = input("> ").strip()
+            return ML_Copilot(user_input=user_input)
+        
+    @step
+    async def list_files(self, ctx: Context, ev: ListFilesEvent) -> PreprocessEvent | ML_Copilot | ListFilesEvent | StopEvent :
         files = os.listdir('.')
         print("Current directory files:")
         for f in files:
@@ -156,7 +194,7 @@ class MLWorkflow(Workflow):
         return ML_Copilot(user_input=user_input)
 
     @step
-    async def data_preprocessing(self, ctx: Context, ev: PreprocessEvent) -> TrainEvent | ML_Copilot | ListFilesEvent:
+    async def data_preprocessing(self, ctx: Context, ev: PreprocessEvent) -> TrainEvent | ML_Copilot | ListFilesEvent | StopEvent:
         dataset_path = ev.dataset_path
         target_column = ev.target_column
         save_path = ev.save_path 
@@ -193,7 +231,7 @@ Please write and execute Python code to:
         return ML_Copilot(user_input=user_input)
 
     @step
-    async def training(self, ctx: Context, ev: TrainEvent) -> EvaluateEvent | ML_Copilot | ListFilesEvent | DocumentEvent:
+    async def training(self, ctx: Context, ev: TrainEvent) -> EvaluateEvent | ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
         # Retrieve the preprocessed data path from the context
         preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
         if not preprocessed_data_path:
@@ -233,7 +271,7 @@ Please write and execute Python code to:
         return ML_Copilot(user_input=user_input)
 
     @step
-    async def evaluation(self, ctx: Context, ev: EvaluateEvent) -> PlotEvent | ML_Copilot | ListFilesEvent | DocumentEvent:
+    async def evaluation(self, ctx: Context, ev: EvaluateEvent) -> PlotEvent | ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
         # Retrieve the model path and preprocessed data path from the context
         model_path = await ctx.get('model_path', default=None)
         preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
@@ -282,7 +320,7 @@ Please write and execute Python code to:
         return ML_Copilot(user_input=user_input)
 
     @step
-    async def plotting(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent:
+    async def plotting(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
         if ev.plot_type == 'results':
             await self.plot_results(ctx, ev)
         elif ev.plot_type == 'data':
@@ -297,8 +335,8 @@ Please write and execute Python code to:
         user_input = input("> ").strip()
         return ML_Copilot(user_input=user_input)
 
-    @step 
-    async def plot_results(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent:
+    # @step 
+    async def plot_results(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
         # Retrieve the evaluation results path from the context
         evaluation_results_path = await ctx.get('evaluation_results_path', default=None)
         if evaluation_results_path:
@@ -341,13 +379,13 @@ Please write and execute Python code to:
         # Print the agent's response
         print(response)
         
-        # Indicate completion
-        print("Plots generated and saved to 'results'. What would you like to do next?")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
+        # # Indicate completion
+        # print("Plots generated and saved to 'results'. What would you like to do next?")
+        # user_input = input("> ").strip()
+        # return ML_Copilot(user_input=user_input)
 
-    @step
-    async def plot_data(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent:
+    # @step
+    async def plot_data(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
         # Retrieve the preprocessed data path from the context
         preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
         if preprocessed_data_path:
@@ -390,14 +428,14 @@ Please write and execute Python code to:
         # Print the agent's response
         print(response)
         
-        # Indicate completion
-        print("Plots generated and saved to 'results'. What would you like to do next?")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
+        # # Indicate completion
+        # print("Plots generated and saved to 'results'. What would you like to do next?")
+        # user_input = input("> ").strip()
+        # return ML_Copilot(user_input=user_input)
 
 
     @step
-    async def documentation(self, ctx: Context, ev: DocumentEvent) -> ML_Copilot | ListFilesEvent:
+    async def documentation(self, ctx: Context, ev: DocumentEvent) -> ML_Copilot | ListFilesEvent | StopEvent:
         # Retrieve paths from the context
         model_path = await ctx.get('model_path', default=None)
         evaluation_results_path = await ctx.get('evaluation_results_path', default=None)
