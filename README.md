@@ -4,8 +4,8 @@ ML-Copilot is an interactive machine learning assistant that streamlines the pro
 
 The framework is build as an llm-agent with llama-index workflow, which is able to execute realtime code through code-intepreter which is present as a tool with the llm-agenmt. 
 
-![ML-Copilot-Agent Usage]("assets/ml_copilot_use2_720.gif")
-<!-- [![Watch video](https://img.youtube.com/vi/rci7WLu7Lw8/0.jpg)](https://youtu.be/rci7WLu7Lw8) -->
+<!-- ![ML-Copilot-Agent Usage]("assets/ml_copilot_use2_720.gif") -->
+[![How to use ?: Watch short video](https://img.youtube.com/vi/rci7WLu7Lw8/0.jpg)](https://youtu.be/rci7WLu7Lw8)
 <!-- [![Watch the video](https://img.youtube.com/vi/rci7WLu7Lw8)](https://youtube.com/embed/rci7WLu7Lw8) -->
 
 ## LLM-Agent-Features
