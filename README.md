@@ -40,26 +40,25 @@ Ensure you have Python 3.7 or higher installed on your system.
 
 ## Usage
 
-1. **Set Up OpenAI API Key**:
+1. **Get Your OpenAI API Key:**:
 
-Export your OpenAI API key as an environment variable or include it when running the program.
-```bash
-export OPENAI_API_KEY='your-openai-api-key'
-```
+To use the OpenAI API, you need to obtain your API key. If you haven't done so yet, follow these steps:
+- Go to the [OpenAI API keys page](https://platform.openai.com/account/api-keys)
+- Log in to your OpenAI account (or sign up if you don't have one).
+- Create a new API key and copy it
 
 2. **Run ML-Copilot**:
 ```bash
-python -m ml_copilot_agent your-openai-api-key
+python -m ml_copilot_agent paste-your-openai-api-key
 ```
 
-
-Replace `your-openai-api-key` with your actual OpenAI API key.
+Replace `paste-your-openai-api-key` with your actual OpenAI API key.
 
 3. **Interact with ML-Copilot**:
 
 Once started, ML-Copilot will prompt you for commands. You can enter any of the following commands:
 
-- `list files`: Show files in the current directory.
+- `show files`: Show files in the current directory.
 - `preprocess`: Preprocess data for a binary classification task.
 - `train`: Train a binary classification model.
 - `evaluate`: Evaluate the trained model.
