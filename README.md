@@ -4,7 +4,7 @@ ML-Copilot is an interactive machine learning assistant that streamlines the pro
 
 The framework is build as an llm-agent with llama-index workflow, which is able to execute realtime code through code-intepreter which is present as a tool with the llm-agenmt. 
 
-![ML-Copilot-Agent Usage]("/assets/ml-copilot-use2-720.mp4")
+![ML-Copilot-Agent Usage]("/assets/ml-copilot-use2-720.gif")
 <!-- [![Watch video](https://img.youtube.com/vi/rci7WLu7Lw8/0.jpg)](https://youtu.be/rci7WLu7Lw8) -->
 <!-- [![Watch the video](https://img.youtube.com/vi/rci7WLu7Lw8)](https://youtube.com/embed/rci7WLu7Lw8) -->
 
@@ -15,7 +15,7 @@ The framework is build as an llm-agent with llama-index workflow, which is able 
 - **Model Training**: Train binary classification models using algorithms like Logistic Regression, SVM, or Random Forest.
 - **Model Evaluation**: Evaluate trained models and obtain metrics such as accuracy, precision, recall, F1-score, and AUC.
 - **Plotting**: Generate various plots (e.g., bar plots, PCA plots, correlation matrices) from data or evaluation results.
-- **Documentation**: Automatically generate a documentation report summarizing the entire workflow.
+<!-- - **Documentation**: Automatically generate a documentation report summarizing the entire workflow. -->
 - **Interactive Workflow**: Seamlessly navigate through different steps with an intuitive command-line interface.
 
 ## Installation
@@ -114,15 +114,15 @@ plot
 - **Data File Path**: Provide the data file path or press Enter to use default evaluation results or preprocessed data.
 - **Additional Plotting Instructions**: (Optional) Specify the type of plot (e.g., "make a bar plot of accuracy and precision").
 
-**Step 6: Generate Documentation**
+<!-- **Step 6: Generate Documentation**
 
 ```
 document
 ```
 
-- ML-Copilot will generate a report summarizing the preprocessing steps, model training, and evaluation results.
+- ML-Copilot will generate a report summarizing the preprocessing steps, model training, and evaluation results. -->
 
-**Step 7: Exit**
+**Step 6: Exit**
 
 ```
 exit
