@@ -43,11 +43,15 @@ cd ml-copilot
 ```bash
 pip install -r requirements.txt
 ```
-
-
 Ensure you have Python 3.7 or higher installed on your system.
 
+
 ## Usage
+
+### Download the file for test run 
+```bash
+wget https://raw.githubusercontent.com/VatsalPatel18/ml-copilot-agent/master/temp_csv1.data
+```
 
 1. **Get Your OpenAI API Key:**:
 
