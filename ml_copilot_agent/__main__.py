@@ -5,6 +5,7 @@ import sys
 
 from .workflow import MLWorkflow
 from . import initialize
+from llama_index.utils.workflow import draw_all_possible_flows
 
 def main():
     if len(sys.argv) < 2:
@@ -15,6 +16,7 @@ def main():
 
     async def run_workflow():
         workflow = MLWorkflow(timeout=600, verbose=True)
+        draw_all_possible_flows(workflow, filename="MLCopilot_workflow.html")
         await workflow.run()
     
     asyncio.run(run_workflow())
