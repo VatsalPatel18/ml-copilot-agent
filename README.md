@@ -18,6 +18,7 @@ The framework is build as an llm-agent with llama-index workflow, which is able 
 - **Plotting**: Generate various plots (e.g., bar plots, PCA plots, correlation matrices) from data or evaluation results.
 <!-- - **Documentation**: Automatically generate a documentation report summarizing the entire workflow. -->
 - **Interactive Workflow**: Seamlessly navigate through different steps with an intuitive command-line interface.
+- **Custom Instruction**: Can provide custom instruction to execute code, for example "Perform pca on temp_csv, save the pca results, plot the pca and save plot inside results folder  
 
 Please make a conda environment before begin
 
@@ -125,15 +126,15 @@ plot
 - **Data File Path**: Provide the data file path or press Enter to use default evaluation results or preprocessed data.
 - **Additional Plotting Instructions**: (Optional) Specify the type of plot (e.g., "make a bar plot of accuracy and precision").
 
-<!-- **Step 6: Generate Documentation**
+**Step 7: Custom Instructions**
 
 ```
-document
+custom instruction
 ```
 
-- ML-Copilot will generate a report summarizing the preprocessing steps, model training, and evaluation results. -->
+- Provide any kind of custom instruction that you would like to execute code.
 
-**Step 6: Exit**
+**Step 8: Exit**
 
 ```
 exit
