@@ -9,7 +9,7 @@ build:
 
 # Build the documentation using Sphinx
 sphinx:
-  configuration: docs/conf.py
+  configuration: mkdocs.yml
 
 # Specify any Python dependencies required for building the documentation
 python:
