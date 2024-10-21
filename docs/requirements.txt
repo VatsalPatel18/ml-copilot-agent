@@ -1,3 +1,5 @@
+mkdocs
+mkdocs-material
 llama-index
 llama-index-agent-openai
 llama-index-llms-openai
@@ -10,4 +12,5 @@ seaborn
 scikit-learn
 sphinx
 sphinx_rtd_theme
+
 

@@ -1,0 +1,11 @@
+site_name: ML Copilot Agent
+nav:
+  - Home: index.md
+
+theme:
+  name: material
+
+markdown_extensions:
+  - toc:
+      permalink: true
+
