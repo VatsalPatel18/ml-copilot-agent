@@ -7,11 +7,12 @@ build:
   tools:
     python: "3.12"
 
-# Build the documentation using Sphinx
-sphinx:
+# Build the documentation using MkDocs
+mkdocs:
   configuration: mkdocs.yml
 
 # Specify any Python dependencies required for building the documentation
 python:
   install:
     - requirements: docs/requirements.txt
+
