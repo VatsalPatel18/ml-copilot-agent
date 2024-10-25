@@ -7,6 +7,11 @@ build:
   tools:
     python: "3.12"
 
+# Build formats for both HTML and PDF
+formats:
+  - html
+  - pdf
+
 # Build the documentation using MkDocs
 mkdocs:
   configuration: mkdocs.yml
