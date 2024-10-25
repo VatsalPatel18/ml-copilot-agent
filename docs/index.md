@@ -6,6 +6,11 @@ Welcome to the **ML Copilot Agent** documentation!
 
 ![ML Copilot Agent Banner](assets/banner.png)
 
+## How to use? Watch Short Video (Recommended)
+
+[![How to use ?: Watch short video](https://img.youtube.com/vi/rci7WLu7Lw8/0.jpg)](https://youtu.be/rci7WLu7Lw8)
+
+
 ## Key Features
 
 - **Data Preprocessing**: Automatically preprocess datasets for binary classification.
