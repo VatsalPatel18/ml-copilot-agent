@@ -15,3 +15,5 @@ During prompts, you can specify custom paths:
 ```plaintext
 Please enter the save path for the trained model (press Enter for default 'models/model.pkl'):
 > models/custom_model.pkl
+```
+

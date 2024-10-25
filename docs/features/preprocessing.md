@@ -18,5 +18,6 @@ Please enter the target column name:
 > target
 Any additional preprocessing instructions?
 > use standard scaler
+```
 
 The preprocessed data is saved to data/preprocessed_data.csv by default.

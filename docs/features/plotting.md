@@ -15,5 +15,6 @@ What would you like to plot?
 > data
 Any additional plotting instructions?
 > plot feature distributions
+```
 
 Plots are saved in the results/ directory.

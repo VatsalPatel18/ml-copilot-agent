@@ -14,5 +14,6 @@ Evaluate your trained model and receive detailed performance metrics.
 
 ```plaintext
 > evaluate model
+```
 
 Evaluation results are saved to results/evaluation.txt by default.
