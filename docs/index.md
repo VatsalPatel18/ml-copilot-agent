@@ -18,5 +18,5 @@ Welcome to the **ML Copilot Agent** documentation!
 ## Get Started
 
 - [Installation](installation.md)
-- [Usage](usage/overview.md)
+- [Usage](usage/command.md)
 - [Features](features/preprocessing.md)
