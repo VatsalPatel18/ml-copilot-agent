@@ -8,3 +8,4 @@ To begin, run the following command:
 
 ```bash
 python -m ml_copilot_agent <your-openai-api-key>
+```
