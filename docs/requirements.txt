@@ -10,3 +10,5 @@ llama-index-utils-workflow
 matplotlib
 seaborn
 scikit-learn
+sphinx
+sphinx-rtd-theme
