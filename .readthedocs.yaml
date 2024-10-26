@@ -9,8 +9,9 @@ build:
 
 # Build formats for both HTML and PDF
 formats:
-  - html
-  - pdf
+  - "htmlzip"
+  - "pdf"
+  - "epub"
 
 # Build the documentation using MkDocs
 mkdocs:
