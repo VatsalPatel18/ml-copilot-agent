@@ -16,3 +16,7 @@ nav:
   - Contributing: contributing.md
   - License: license.md
   - FAQ: faq.md
+
+plugins:
+  - search
+  - pdf-export

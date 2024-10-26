@@ -4,7 +4,7 @@ Welcome to the **ML Copilot Agent** documentation!
 
 **ML Copilot Agent** is an interactive command-line tool designed to assist you in performing common machine learning tasks. It leverages OpenAI's language models and the LlamaIndex framework to automate processes such as data preprocessing, model training, evaluation, plotting, and generating reports.
 
-![ML Copilot Agent Banner](assets/ml-agent_thumbnail.jpeg)
+![ML Copilot Agent Banner](/assets/ml-agent_thumbnail.jpeg)
 
 ## How to use? Watch Short Video (Recommended)
 
