@@ -7,24 +7,13 @@
 
 ## Steps
 
-### 1. Clone the Repository
+### 1. Install via PIP
 
 ```bash
-git clone https://github.com/yourusername/ml-copilot-agent.git
-cd ml-copilot-agent
+pip install ml-copilot-agent
 ```
 
-### 2. Install Dependencies
-Using pip
-```bash
-pip install -r requirements.txt
-```
-Using poetry
-```bash
-poetry install
-```
-
-### 3. Set Up Environment Variables
+### 2. Set Up Environment Variables
 Export your OpenAI API key:
 ```bash
 export OPENAI_API_KEY='your-api-key-here'
@@ -34,7 +23,7 @@ Alternatively, create a .env file in the project root:
 echo "OPENAI_API_KEY='your-api-key-here'" > .env
 ```
 
-### 4. Run the Agent
+### 3. Run the Agent
 ```bash
-python -m ml_copilot_agent
+python -m ml_copilot_agent OPENAI_API_KEY
 ```
