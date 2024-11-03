@@ -74,7 +74,7 @@ class MLWorkflow(Workflow):
         # Initialize context data
         await ctx.set('files', os.listdir('.'))
         print("Welcome to ML-Copilot! How can I assist you today?")
-        print("I can do the following things: 'show files', 'preprocess data', 'train model', 'evaluate model', 'plot results', 'generate report',  'custom instruction', or 'exit'.")
+        print("I can do the following things: 'show files','visualize data' 'preprocess data', 'train model', 'evaluate model', 'plot results', 'generate report',  'custom instruction', or 'exit'.")
         user_input = input("> ").strip()
         return ML_Copilot(user_input=user_input)
 
@@ -127,9 +127,9 @@ class MLWorkflow(Workflow):
             user_input = input("> ").strip()
             return ML_Copilot(user_input=user_input)
         
-        elif "plot" in user_input:
+        elif "plot" in user_input or 'visualize' in user_input:
             print("What would you like to plot?")
-            print("- Type 'data' to plot preprocessed data.")
+            print("- Type 'data' to visualize preprocessed data.")
             print("- Type 'results' to plot evaluation results.")
 
             plot_type = input("> ").strip().lower()

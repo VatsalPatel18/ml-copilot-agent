@@ -2,21 +2,26 @@
 
 import asyncio
 import sys
+import os
 
 from .workflow import MLWorkflow
 from . import initialize
-from llama_index.utils.workflow import draw_all_possible_flows
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python -m ml_copilot_agent <OPENAI_API_KEY>")
+    # Check for the API key in command-line arguments or environment variable
+    if len(sys.argv) > 1:
+        api_key = sys.argv[1]
+    else:
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
+        print("Usage: python -m ml_copilot_agent <OPENAI_API_KEY> or set the OPENAI_API_KEY environment variable.")
         sys.exit(1)
-    api_key = sys.argv[1]
+    
     initialize(api_key)
 
     async def run_workflow():
         workflow = MLWorkflow(timeout=600, verbose=True)
-        draw_all_possible_flows(workflow, filename="MLCopilot_workflow.html")
         await workflow.run()
     
     asyncio.run(run_workflow())
