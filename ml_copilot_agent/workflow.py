@@ -2,23 +2,12 @@ import os
 import asyncio
 from typing import Optional
 from typing import Union
-
-from llama_index.core.workflow import (
-    Workflow,
-    Context,
-    Event,
-    StartEvent,
-    StopEvent,
-    step
-)
+from llama_index.core.workflow import Workflow,Context,Event,StartEvent,StopEvent,step
 from llama_index.tools.code_interpreter.base import CodeInterpreterToolSpec
-from llama_index.agent.openai import OpenAIAgent
-from llama_index.llms.openai import OpenAI
-
+from llama_index.agent.openai import OpenAIAgent,OpenAI
 # If you need Settings or draw_all_possible_flows
 from llama_index.core import Settings
 from llama_index.utils.workflow import draw_all_possible_flows
-
 
 # Define Events
 class InitializeEvent(Event):
@@ -162,8 +151,7 @@ class MLWorkflow(Workflow):
 Please execute the following instruction:
 
 {custom_instruction}
-"""
-        
+"""    
         # Use the agent to generate and execute code asynchronously
         response = await asyncio.get_event_loop().run_in_executor(
             None, self.agent.chat, prompt
@@ -257,7 +245,6 @@ Please write and execute Python code to:
         response = await asyncio.get_event_loop().run_in_executor(
             None, self.agent.chat, prompt
         )
-
         # Print the agent's response
         print(response)
 
@@ -307,7 +294,6 @@ Please write and execute Python code to:
         response = await asyncio.get_event_loop().run_in_executor(
             None, self.agent.chat, prompt
         )
-
         # Print the agent's response
         print(response)
 
@@ -378,11 +364,6 @@ Please write and execute Python code to:
         
         # Print the agent's response
         print(response)
-        
-        # # Indicate completion
-        # print("Plots generated and saved to 'results'. What would you like to do next?")
-        # user_input = input("> ").strip()
-        # return ML_Copilot(user_input=user_input)
 
     # @step
     async def plot_data(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
@@ -423,16 +404,10 @@ Please write and execute Python code to:
         # Use the agent to generate and execute code asynchronously
         response = await asyncio.get_event_loop().run_in_executor(
             None, self.agent.chat, prompt
-        )
-        
+        )  
         # Print the agent's response
         print(response)
         
-        # # Indicate completion
-        # print("Plots generated and saved to 'results'. What would you like to do next?")
-        # user_input = input("> ").strip()
-        # return ML_Copilot(user_input=user_input)
-
 
     @step
     async def documentation(self, ctx: Context, ev: DocumentEvent) -> ML_Copilot | ListFilesEvent | StopEvent:
@@ -454,12 +429,10 @@ Please write a documentation report summarizing:
 - The evaluation results.
 Save the report to '{report_save_path}'.
 """
-
         # Use the agent to generate and execute code asynchronously
         response = await asyncio.get_event_loop().run_in_executor(
             None, self.agent.chat, prompt
         )
-
         # Print the agent's response
         print(response)
 

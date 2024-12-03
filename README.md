@@ -180,8 +180,10 @@ Contributions are welcome! Please follow these steps:
 4. **Push to your fork** and submit a pull request.
 
 ## License
+This software is licensed under a Custom License Agreement.  
+© 2024 Vatsal Patel. All rights reserved.
 
-This project is licensed under the CC-BY-NC-ND-4.0 License.
+For details, please refer to the [LICENSE](./LICENSE) file.
 
 ## Acknowledgments
 
