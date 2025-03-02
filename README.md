@@ -1,17 +1,8 @@
 # ML-Copilot-Agent  
-**Built with [TabPFN](http://priorlabs.ai/tabpfn-license)**  
 
 ML-Copilot is an interactive machine learning assistant that streamlines the process of data preprocessing, model training, evaluation, plotting results, and generating documentation—all through a command-line interface powered by OpenAI's GPT 4o.
 
 The framework is build as an llm-agent with llama-index workflow, which is able to execute realtime code through code-intepreter which is present as a tool with the llm-agenmt. 
-
-## License  
-This software is dual-licensed:  
-- **Original Code**: © 2025 Vatsal Patel. All rights reserved. Commercial use requires explicit permission.  
-- **TabPFN Components**: Licensed under the [Prior Labs License](http://priorlabs.ai/tabpfn-license).  
-
-**Attribution Requirement**:  
-- Display "Built with TabPFN" prominently in your UI, documentation, or website.  
 
 ![ML-Copilot Agent](./ml-copilot-agent.png)
 
