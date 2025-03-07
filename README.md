@@ -183,12 +183,11 @@ Contributions are welcome! Please follow these steps:
 
 ## License
 This software is licensed under a Custom License Agreement.  
-© 2024 Vatsal Patel. All rights reserved.
+© 2025 Vatsal Patel. All rights reserved.
 
 For details, please refer to the [LICENSE](./LICENSE) file.
 
 ## Acknowledgments  
-- Thanks to [Prior Labs](http://priorlabs.ai) for TabPFN.  
 - Developers of OpenAI and LlamaIndex for foundational tools.  
 
 ## Contact
