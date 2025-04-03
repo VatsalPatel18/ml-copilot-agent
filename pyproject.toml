@@ -1,25 +1,39 @@
 [tool.poetry]
 name = "ml-copilot-agent"
-version = "0.1.9"
-description = "\"It is a Machine Learning Copilot Agent that can execute code for end-to-end ML Cycle\""
+version = "0.2.0" # Version bump
+description = "A Machine Learning Copilot Agent with GUI that can execute code for end-to-end ML Cycle"
 authors = ["VatsalPatel18 <vatsal1804@gmail.com>"]
-license = "CC-BY-NC-ND-4.0"
+license = "CC-BY-NC-ND-4.0" # Or your custom license
 readme = "README.md"
 
 [tool.poetry.dependencies]
 python = ">=3.9,<4.0"
-llama-index = "0.11.16"
-llama-index-agent-openai = "0.3.4"
-llama-index-llms-openai = "0.2.11"
-llama-index-tools-code-interpreter = "0.2.0"
-llama-index-llms-huggingface = "0.3.4"
-llama-index-embeddings-huggingface = "0.3.1"
-llama-index-utils-workflow = "0.2.1"
+llama-index = "0.11.16" # Or latest compatible
+llama-index-agent-openai = "0.3.4" # Or latest compatible
+llama-index-llms-openai = "0.2.11" # Or latest compatible
+llama-index-tools-code-interpreter = "0.2.0" # Or latest compatible
+llama-index-llms-huggingface = "0.3.4" # Or latest compatible
+llama-index-embeddings-huggingface = "0.3.1" # Or latest compatible
+llama-index-utils-workflow = "0.2.1" # Or latest compatible
+llama-index-llms-ollama = "^0.1.4" # Add ollama integration
 matplotlib = ">=3.7.0"
 seaborn = ">=0.10"
 scikit-learn = ">=1.2"
+pandas = "^2.0.0" # Add pandas explicitly
+
+# --- Added for GUI Backend ---
+fastapi = "^0.111.0"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
+python-dotenv = "^1.0.1" # For managing API keys via .env
+aiofiles = "^23.2.1" # For serving static files if needed later
+requests = "^2.31.0" # For querying Ollama API
+
+[tool.poetry.scripts]
+# Optional: Define a script entry point if desired, though __main__.py handles it
+# ml-copilot-agent = "ml_copilot_agent.__main__:main"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
