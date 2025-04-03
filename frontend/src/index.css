@@ -1,0 +1,33 @@
+/* frontend/src/index.css */
+
+/* Import Tailwind directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Add global base styles here */
+body {
+  @apply font-sans antialiased text-gray-900 bg-white;
+  /* Ensure Inter font is loaded via index.html or here */
+  font-family: 'Inter', sans-serif;
+}
+
+/* Example: Custom scrollbar styling (optional) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
