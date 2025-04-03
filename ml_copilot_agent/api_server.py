@@ -315,7 +315,7 @@ async def run_evaluate(request: EvaluateRequest):
 async def run_plot(request: PlotRequest):
     """Triggers the plotting step."""
     try:
-         # The logic function now returns a dictionary
+        # The logic function now returns a dictionary
         result_dict = await workflow_logic.run_plotting_step(
             plot_type=request.plot_type,
             data_file_path=request.data_file_path,
@@ -323,22 +323,25 @@ async def run_plot(request: PlotRequest):
             plot_save_dir=request.plot_save_dir or 'plots',
             additional_instructions=request.additional_instructions
         )
-         # Check if plot_path exists and is valid before returning
-         plot_path = result_dict.get("plot_path")
-         if plot_path and not os.path.exists(plot_path):
-             logger.warning(f"Plot path reported but not found: {plot_path}")
-             # Decide how to handle: return None, raise error, or return path anyway?
-             # Returning None for now if file doesn't exist.
-             plot_path = None
+        # Check if plot_path exists and is valid before returning
+        # --- Start of potentially problematic indentation ---
+        plot_path = result_dict.get("plot_path") # <-- Ensure this line has correct indentation relative to the 'try' block
+        if plot_path and not os.path.exists(plot_path):
+            logger.warning(f"Plot path reported but not found: {plot_path}")
+            # Decide how to handle: return None, raise error, or return path anyway?
+            # Returning None for now if file doesn't exist.
+            plot_path = None
+        # --- End of potentially problematic indentation ---
 
-         # TODO: Need a way to serve the plot file.
-         # Option 1: Return the absolute path and have Electron/Tauri load it via file://
-         # Option 2: Add a static file serving endpoint in FastAPI and return a URL /plots/filename.png
-         # Option 3: Read the image file and return base64 data (less ideal for large images)
-         # Sticking with Option 1 (absolute path) for now, assuming Electron/Tauri context.
-         # If running purely as a web app, Option 2 would be needed.
+        # TODO: Need a way to serve the plot file.
+        # Option 1: Return the absolute path and have Electron/Tauri load it via file://
+        # Option 2: Add a static file serving endpoint in FastAPI and return a URL /plots/filename.png
+        # Option 3: Read the image file and return base64 data (less ideal for large images)
+        # Sticking with Option 1 (absolute path) for now, assuming Electron/Tauri context.
+        # If running purely as a web app, Option 2 would be needed.
 
-         return PlotResponse(message=result_dict["message"], plot_path=plot_path)
+        return PlotResponse(message=result_dict["message"], plot_path=plot_path) # <-- Ensure this line has correct indentation
+
     except Exception as e:
         logger.error(f"Error during /plot: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"Error during plotting: {e}")

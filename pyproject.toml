@@ -14,8 +14,10 @@ llama-index-llms-openai = "0.2.11" # Or latest compatible
 llama-index-tools-code-interpreter = "0.2.0" # Or latest compatible
 llama-index-llms-huggingface = "0.3.4" # Or latest compatible
 llama-index-embeddings-huggingface = "0.3.1" # Or latest compatible
-llama-index-utils-workflow = "0.2.1" # Or latest compatible
-llama-index-llms-ollama = "^0.1.4" # Add ollama integration
+llama-index-utils-workflow = "0.3.0" # Or latest compatible
+llama-index-llms-ollama="0.5.4"
+
+
 matplotlib = ">=3.7.0"
 seaborn = ">=0.10"
 scikit-learn = ">=1.2"
