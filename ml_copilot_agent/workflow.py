@@ -1,454 +1,229 @@
+# ml_copilot_agent/workflow.py
+
 import os
-import asyncio
-from typing import Optional
-from typing import Union
-from llama_index.core.workflow import Workflow,Context,Event,StartEvent,StopEvent,step
-from llama_index.tools.code_interpreter.base import CodeInterpreterToolSpec
-from llama_index.agent.openai import OpenAIAgent,OpenAI
-# If you need Settings or draw_all_possible_flows
-from llama_index.core import Settings
-from llama_index.utils.workflow import draw_all_possible_flows
+import logging
+import traceback
+import datetime # Added import
+from typing import List, Dict, Any, Optional
 
-# Define Events
-class InitializeEvent(Event):
-    pass
+# LlamaIndex imports
+from llama_index.core.agent.workflow import AgentWorkflow, FunctionAgent
+# Removed unused event imports like AgentInput, AgentAction, etc. as we rely on the agent's response
+from llama_index.core.workflow import Context # Keep Context for state management
+from llama_index.core.base.llms.base import BaseLLM
+from llama_index.core.base.embeddings.base import BaseEmbedding
+from llama_index.core.tools import BaseTool, FunctionTool
+# Removed base Workflow, StartEvent, StopEvent, step, Event as AgentWorkflow handles the flow
 
-class ML_Copilot(Event):
-    user_input: str
+# Project components
+from .config import (DEFAULT_PREPROCESS_SAVE_DIR, DEFAULT_MODEL_SAVE_DIR,
+                     DEFAULT_RESULTS_SAVE_DIR, DEFAULT_PLOT_SAVE_DIR,
+                     DEFAULT_PREPROCESS_FILENAME, DEFAULT_MODEL_FILENAME,
+                     DEFAULT_EVALUATION_FILENAME)
+from .log_manager import LogManager
+from .memory_manager import MemoryManager
+from .rag_manager import RAGManager
+from .tools import (get_code_interpreter_tool, get_list_files_tool,
+                    get_log_query_tool, get_learn_query_tool, get_learn_setup_tool)
 
-class CustomEvent(Event):
-    custom_instruction: str
+logger = logging.getLogger(__name__)
 
-class ListFilesEvent(Event):
-    pass
-
-class PlotEvent(Event):
-    plot_type: str  # 'results' or 'data'
-    data_file_path: Optional[str] = None
-    additional_instructions: Optional[str] = ''
-
-class PreprocessEvent(Event):
-    dataset_path: str
-    target_column: str
-    save_path: Optional[str] = 'data/preprocessed_data.csv'
-    additional_instructions: Optional[str] = ''
-
-class TrainEvent(Event):
-    model_path: Optional[str] = 'models/model.pkl'
-    additional_instructions: Optional[str] = ''
-
-class EvaluateEvent(Event):
-    evaluation_save_path: Optional[str] = 'results/evaluation.txt'
-    additional_instructions: Optional[str] = ''
-
-class DocumentEvent(Event):
-    report_save_path: Optional[str] = 'reports/report.md'
-
-# Define the MLWorkflow
-class MLWorkflow(Workflow):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Initialize the code interpreter tool
-        code_spec = CodeInterpreterToolSpec()
-        tools = code_spec.to_tool_list()
-        
-        # Create the OpenAIAgent with the code interpreter tool
-        self.agent = OpenAIAgent.from_tools(tools, verbose=True)
-        # Use the LLM from Settings
-        self.llm = Settings.llm
-
-    @step
-    async def initialize(self, ctx: Context, ev: StartEvent) -> ML_Copilot:
-        # Initialize context data
-        await ctx.set('files', os.listdir('.'))
-        print("Welcome to ML-Copilot! How can I assist you today?")
-        print("I can do the following things: 'show files','visualize data' 'preprocess data', 'train model', 'evaluate model', 'plot results', 'generate report',  'custom instruction', or 'exit'.")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    @step
-    async def ml_copilot(self, ctx: Context, ev: ML_Copilot) -> ML_Copilot | ListFilesEvent | PreprocessEvent| TrainEvent | EvaluateEvent | DocumentEvent | PlotEvent | StopEvent :
-
-        user_input = ev.user_input.lower()
-        
-        # Simple keyword-based parsing
-        if "list files" in user_input or "show files" in user_input:
-            return ListFilesEvent()
-        elif "preprocess" in user_input:
-            # Ask for dataset path and target column
-            print("Please enter the dataset path:")
-            dataset_path = input("> ").strip()
-            print("Please enter the target column name:")
-            target_column = input("> ").strip()
-            print("Please enter the save path for preprocessed data (press Enter for default 'data/preprocessed_data.csv'):")
-            save_path = input("> ").strip() or 'data/preprocessed_data.csv'
-            print("Any additional preprocessing instructions? (e.g., 'use standard scaler') (press Enter to skip):")
-            additional_instructions = input("> ").strip()
-            return PreprocessEvent(
-                dataset_path=dataset_path,
-                target_column=target_column,
-                save_path=save_path,
-                additional_instructions=additional_instructions
-                )
-        elif "train" in user_input:
-            print("Please enter the save path for the trained model (press Enter for default 'models/model.pkl'):")
-            model_path = input("> ").strip() or 'models/model.pkl'
-            print("Any additional training instructions? (e.g., 'use SVM classifier') (press Enter to skip):")
-            additional_instructions = input("> ").strip()
-            return TrainEvent(model_path=model_path, additional_instructions=additional_instructions)
-        elif "evaluate" in user_input:
-            print("Please enter the save path for the evaluation results (press Enter for default 'results/evaluation.txt'):")
-            evaluation_save_path = input("> ").strip() or 'results/evaluation.txt'
-            return EvaluateEvent(evaluation_save_path=evaluation_save_path)
-        elif "document" in user_input or "report" in user_input:
-            return DocumentEvent()
-        elif "exit" in user_input or "quit" in user_input:
-            return StopEvent(result="Workflow terminated by user.")
-        elif "what can you do" in user_input or "help" in user_input:
-            print("I can assist you with the following tasks:")
-            print("- 'list files' to show files in the current directory")
-            print("- 'preprocess data' to preprocess data for a binary classification task")
-            print("- 'train model' to train a binary classification model")
-            print("- 'evaluate model' to evaluate the trained model")
-            print("- 'generate report' to generate a documentation report")
-            print("- 'exit' to terminate the workflow")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-        elif "plot" in user_input or 'visualize' in user_input:
-            print("What would you like to plot?")
-            print("- Type 'data' to visualize preprocessed data.")
-            print("- Type 'results' to plot evaluation results.")
-
-            plot_type = input("> ").strip().lower()
-            if plot_type == 'results':
-                return PlotEvent(plot_type='results')
-            elif plot_type == 'data':
-                return PlotEvent(plot_type='data')
-            else:
-                print("Invalid option.")
-                user_input = input("> ").strip()
-                return ML_Copilot(user_input=user_input)
-            
-        elif "custom" in user_input or "instruction" in user_input:
-            print("Please enter your custom instruction:")
-            custom_instruction = input("> ").strip()
-            return CustomEvent(custom_instruction=custom_instruction)
-
-        else:
-            print("I'm sorry, I didn't understand that command.")
-            print("You can ask me to 'Show files', 'Preprocess Data', 'Train Model', 'Evaluate Model', 'Plot Results', 'Generate Report', 'Custom Instructions' or 'exit'.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-    @step
-    async def custom_instruction(self, ctx: Context, ev: CustomEvent) -> Union[CustomEvent, ML_Copilot, StopEvent]:
-        custom_instruction = ev.custom_instruction
-        print(f"Executing your custom instruction: {custom_instruction}")
-        
-        prompt = f"""
-Please execute the following instruction:
-
-{custom_instruction}
-"""    
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )
-        
-        # Print the agent's response
-        print(response)
-        
-        print("Do you want to enter another set of custom instruction? (yes/no)")
-        user_response = input("> ").strip().lower()
-        if user_response in ('yes', 'y'):
-            print("Please enter your custom instruction:")
-            user_input = input("> ").strip()
-            return CustomEvent(custom_instruction=user_input)
-        else:
-            print("What would you like to do next?")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-    @step
-    async def list_files(self, ctx: Context, ev: ListFilesEvent) -> PreprocessEvent | ML_Copilot | ListFilesEvent | StopEvent :
-        files = os.listdir('.')
-        print("Current directory files:")
-        for f in files:
-            print(f"- {f}")
-        print("What would you like to do next?")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    @step
-    async def data_preprocessing(self, ctx: Context, ev: PreprocessEvent) -> TrainEvent | ML_Copilot | ListFilesEvent | StopEvent:
-        dataset_path = ev.dataset_path
-        target_column = ev.target_column
-        save_path = ev.save_path 
-        additional_instructions = ev.additional_instructions
-
-        # Prepare the prompt for the agent
-        prompt = f"""
-We have a dataset at '{dataset_path}'.
-Please write and execute Python code to:
-- Load the dataset into a pandas DataFrame.
-- Preprocess the data for a binary classification task, including:
-  - Handle missing values if any.
-  - Encode categorical variables.
-  - Scale or normalize numerical features (without changing the target labels).
-- Ensure the target variable '{target_column}' remains unchanged.
-- Save the preprocessed data to '{save_path}'.
-"""
-        if additional_instructions:
-            prompt += f"\nAdditional instructions from the user: {additional_instructions}"
-
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )
-
-        # Print the agent's response
-        print(response)
-
-        # Store the path to the preprocessed data in the context
-        await ctx.set('preprocessed_data_path', save_path)
-
-        print("Data preprocessing is complete. What would you like to train the model next ?: type : 'train' ")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    @step
-    async def training(self, ctx: Context, ev: TrainEvent) -> EvaluateEvent | ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
-        # Retrieve the preprocessed data path from the context
-        preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
-        if not preprocessed_data_path:
-            print("Preprocessed data not found. Please run preprocessing first.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-
-        model_path = ev.model_path
-        additional_instructions = ev.additional_instructions
-        # Prepare the prompt for the agent
-        prompt = f"""
-We have preprocessed data at '{preprocessed_data_path}'.
-Please write and execute Python code to:
-- Load the preprocessed data.
-- Split the data into training and test sets.
-- Train a binary classification model using an appropriate algorithm (e.g., Logistic Regression, SVM, Random Forest).
-- Save the trained model to '{model_path}'.
-"""
-        if additional_instructions:
-            prompt += f"\nAdditional instructions from the user: {additional_instructions}"
-
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )
-        # Print the agent's response
-        print(response)
-
-        # Store the model path in the context
-        # await ctx.set('model_path', 'models/model.pkl')
-        await ctx.set('model_path', model_path)
+# --- Custom Events Removed ---
+# In this AgentWorkflow setup with a single agent, the flow is driven by the
+# agent's interpretation of the user message and state, rather than explicit
+# event transitions between defined @steps. Custom events are not needed here.
 
 
-        print("Model training is complete. What would you like to evaluate the model next? type: 'evaluate' ")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    @step
-    async def evaluation(self, ctx: Context, ev: EvaluateEvent) -> PlotEvent | ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
-        # Retrieve the model path and preprocessed data path from the context
-        model_path = await ctx.get('model_path', default=None)
-        preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
-        evaluation_save_path = ev.evaluation_save_path
-        additional_instructions = ev.additional_instructions
-
-        if not model_path or not preprocessed_data_path:
-            print("Model or preprocessed data not found. Please ensure both are available.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-        # Ask the user if they want to use a different model
-        print(f"Current model path is '{model_path}'. Do you want to use a different model for evaluation? (yes/no)")
-        user_response = input("> ").strip().lower()
-        if user_response in ('yes', 'y'):
-            print("Please enter the model path:")
-            model_path = input("> ").strip()
-            await ctx.set('model_path', model_path)
-
-        # Prepare the prompt for the agent
-        prompt = f"""
-We have a trained model at '{model_path}' and preprocessed data at '{preprocessed_data_path}'.
-Please write and execute Python code to:
-- Load the preprocessed data and the trained model.
-- Evaluate the model on the test set.
-- Provide evaluation metrics including accuracy, precision, recall, and F1-score, AUC.
-- Save the evaluation results to '{evaluation_save_path}'.
-"""
-        if additional_instructions:
-            prompt += f"\nAdditional instructions from the user: {additional_instructions}"
-
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )
-        # Print the agent's response
-        print(response)
-
-        # Store the evaluation results path in the context
-        # await ctx.set('evaluation_results_path', 'results/evaluation.txt')
-        await ctx.set('evaluation_results_path', evaluation_save_path)
-
-        print("Model evaluation is complete. What would you like to do plot metrics value next? type : 'plot' ")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    @step
-    async def plotting(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
-        if ev.plot_type == 'results':
-            await self.plot_results(ctx, ev)
-        elif ev.plot_type == 'data':
-            await self.plot_data(ctx, ev)
-        else:
-            print("Invalid plot type.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-        # After plotting, prompt for next action
-        print("Plots generated and saved to 'results'. What would you like to do next?")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
-
-    # @step 
-    async def plot_results(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
-        # Retrieve the evaluation results path from the context
-        evaluation_results_path = await ctx.get('evaluation_results_path', default=None)
-        if evaluation_results_path:
-            print(f"Default evaluation results path is '{evaluation_results_path}'. Do you want to use this path? (yes/no)")
-            user_response = input("> ").strip().lower()
-            if user_response in ('yes', 'y'):
-                data_file_path = evaluation_results_path
-            else:
-                print("Please enter the data file path for evaluation results:")
-                data_file_path = input("> ").strip()
-        else:
-            print("No evaluation results found. Please provide the data file path for evaluation results:")
-            data_file_path = input("> ").strip()
-        
-        print("Any additional plotting instructions? (e.g., 'plot ROC curve and save as roc_curve.png') (press Enter to skip):")
-        additional_instructions = input("> ").strip()
-        
-        # Ensure the data file exists
-        if not os.path.exists(data_file_path):
-            print(f"Data file '{data_file_path}' not found.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-        # Create 'results' directory if it doesn't exist
-        os.makedirs('results', exist_ok=True)
-        
-        # Prepare the prompt for the agent
-        prompt = f"""
-    We have evaluation results at '{data_file_path}'.
-    Please write and execute Python code to:
-    - Load the evaluation results.
-    - {additional_instructions if additional_instructions else "Create appropriate plots to visualize evaluation metrics such as accuracy, precision, recall, and ROC curve."}
-    - Save the plots to the 'results/' directory with descriptive filenames with the type of the plot.
+# --- Main Agent Workflow ---
+class MLCopilotWorkflow(AgentWorkflow):
     """
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )
-        
-        # Print the agent's response
-        print(response)
-
-    # @step
-    async def plot_data(self, ctx: Context, ev: PlotEvent) -> ML_Copilot | ListFilesEvent | DocumentEvent | StopEvent:
-        # Retrieve the preprocessed data path from the context
-        preprocessed_data_path = await ctx.get('preprocessed_data_path', default=None)
-        if preprocessed_data_path:
-            print(f"Default preprocessed data path is '{preprocessed_data_path}'. Do you want to use this path? (yes/no)")
-            user_response = input("> ").strip().lower()
-            if user_response in ('yes', 'y'):
-                data_file_path = preprocessed_data_path
-            else:
-                print("Please enter the data file path for preprocessed data:")
-                data_file_path = input("> ").strip()
-        else:
-            print("No preprocessed data found. Please provide the data file path for preprocessed data:")
-            data_file_path = input("> ").strip()
-        
-        print("Any additional plotting instructions? (e.g., 'plot feature distributions') (press Enter to skip):")
-        additional_instructions = input("> ").strip()
-        
-        # Ensure the data file exists
-        if not os.path.exists(data_file_path):
-            print(f"Data file '{data_file_path}' not found.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
-        
-        # Create 'results' directory if it doesn't exist
-        os.makedirs('results', exist_ok=True)
-        
-        # Prepare the prompt for the agent
-        prompt = f"""
-    We have preprocessed data at '{data_file_path}'.
-    Please write and execute Python code to:
-    - Load the data.
-    - {additional_instructions if additional_instructions else "Create appropriate plots to visualize data distributions and relationships between features."}
-    - Save the plots to the 'results/' directory with descriptive filenames depending on the type of the plot.
+    The main AgentWorkflow orchestrating the ML Copilot tasks.
+    Uses a single, versatile agent that interprets user requests, gathers info,
+    generates code, and uses tools.
     """
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
-        )  
-        # Print the agent's response
-        print(response)
-        
 
-    @step
-    async def documentation(self, ctx: Context, ev: DocumentEvent) -> ML_Copilot | ListFilesEvent | StopEvent:
-        # Retrieve paths from the context
-        model_path = await ctx.get('model_path', default=None)
-        evaluation_results_path = await ctx.get('evaluation_results_path', default=None)
+    def __init__(
+        self,
+        llm: BaseLLM,
+        embed_model: BaseEmbedding,
+        log_manager: LogManager,
+        memory_manager: MemoryManager,
+        project_path: str,
+        initial_state: Optional[Dict[str, Any]] = None,
+        verbose: bool = False,
+        **kwargs,
+    ):
+        """
+        Initializes the ML Copilot Agent Workflow.
 
-        if not model_path or not evaluation_results_path:
-            print("Model or evaluation results not found. Please ensure both are available.")
-            user_input = input("> ").strip()
-            return ML_Copilot(user_input=user_input)
+        Args:
+            llm: The language model instance.
+            embed_model: The embedding model instance.
+            log_manager: Instance for logging.
+            memory_manager: Instance for managing state persistence.
+            project_path: Path to the current project.
+            initial_state: Initial state dictionary loaded from memory.
+            verbose: Whether to enable verbose logging/output.
+            **kwargs: Additional arguments for AgentWorkflow.
+        """
+        self.log_manager = log_manager
+        self.memory_manager = memory_manager
+        self.project_path = project_path
+        # Ensure RAGManager gets all required args
+        self.rag_manager = RAGManager(project_path, embed_model, llm, log_manager)
 
-        # Prepare the prompt for the agent
-        prompt = f"""
-We have a trained model at '{model_path}' and evaluation results at '{evaluation_results_path}'.
-Please write a documentation report summarizing:
-- The preprocessing steps.
-- The model training process.
-- The evaluation results.
-Save the report to '{report_save_path}'.
+        # --- Define Tools ---
+        self.log_manager.log("INFO", "Initializing tools...")
+        code_tool = get_code_interpreter_tool(log_manager)
+        list_files_tool = get_list_files_tool(project_path, log_manager)
+        log_query_tool = get_log_query_tool(log_manager, self.rag_manager)
+        learn_query_tool = get_learn_query_tool(log_manager, self.rag_manager)
+        learn_setup_tool = get_learn_setup_tool(log_manager, self.rag_manager)
+
+        tools: List[BaseTool] = [
+            code_tool,
+            list_files_tool,
+            log_query_tool,
+            learn_query_tool,
+            learn_setup_tool,
+            # Add more tools as needed
+        ]
+        tool_names = [t.metadata.name for t in tools]
+        self.log_manager.log("INFO", f"Tools initialized: {tool_names}")
+
+        # --- Define the Agent ---
+        # Using a single FunctionAgent. The system prompt is CRITICAL for guiding its behavior.
+        system_prompt = f"""
+You are ML Copilot Agent, an AI assistant for machine learning tasks within project: '{os.path.basename(project_path)}'.
+Project Path on Server: {self.project_path} (Use this for context, but generate code that saves outputs to relative subdirs like 'data/', 'models/', 'results/', 'plots/').
+
+**Your Capabilities & Tools:**
+* **Code Execution (`{code_tool.metadata.name}`):** Execute Python code for data loading, preprocessing, training, evaluation, plotting. MUST generate complete, runnable scripts including imports (pandas, sklearn, etc.) and saving results/models/plots to project subdirectories.
+* **List Files (`{list_files_tool.metadata.name}`):** List contents of project subdirectories (data, models, results, plots, rag_data, or '.' for root).
+* **Query Logs (`{log_query_tool.metadata.name}`):** Answer questions about past actions and results using project logs.
+* **Setup Learning (`{learn_setup_tool.metadata.name}`):** Load and index user-provided documents (PDFs, text files) for learning. Requires a list of file paths.
+* **Query Learned Docs (`{learn_query_tool.metadata.name}`):** Answer questions based on documents loaded via Setup Learning.
+
+**Core Workflow:**
+1.  **Understand Goal:** Identify the user's primary task (preprocess, train, plot, list files, custom code, check logs, learn new docs, query learned docs).
+2.  **Gather Info (Iteratively):** If needed, ask specific, sequential questions to get required details. Examples:
+    * *Preprocess:* Ask for dataset path, target column name, desired save path (use default '{DEFAULT_PREPROCESS_SAVE_DIR}/{DEFAULT_PREPROCESS_FILENAME}' if none), specific instructions (scaling method, missing value strategy).
+    * *Train:* Ask for preprocessed data path (use state if available), task type (classification/regression), classification details (binary/multi-class/multi-label), model type(s) (e.g., 'LogisticRegression', 'RandomForest', list like ['SVM', 'KNN']), model save path (use default '{DEFAULT_MODEL_SAVE_DIR}/{DEFAULT_MODEL_FILENAME}'), evaluation requirements (e.g., cross-validation folds, specific metrics beyond defaults), feature selection needs. **Evaluation is part of training.**
+    * *Plot:* Ask what to plot (e.g., 'evaluation results', 'data features'), data source path (use state if relevant, e.g., preprocessed data or evaluation results file), specific plot types (e.g., 'correlation matrix', 'ROC curve', 'feature distribution'), desired save directory (use default '{DEFAULT_RESULTS_SAVE_DIR}/{DEFAULT_PLOT_SAVE_DIR}').
+    * *Custom Code:* Ask for the specific Python code or detailed instructions.
+    * *Check Logs:* Ask for the specific question about the logs.
+    * *Learn New Docs:* Ask for the list of file paths to index OR the question to ask about already indexed docs.
+3.  **Select Tool:** Choose the most appropriate tool based on the goal.
+4.  **Prepare Tool Input:**
+    * *Code Interpreter:* Generate the complete Python script. Use information from the current state (like `preprocessed_data_path` for training). Ensure code saves outputs correctly to relative paths (e.g., `os.path.join('{DEFAULT_MODEL_SAVE_DIR}', 'my_model.pkl')`). Include error handling (try-except) in the generated code where appropriate.
+    * *Other Tools:* Format arguments as required by the tool description (e.g., `sub_directory='data'` for list_files, `query='show errors from last run'` for query_logs).
+5.  **Execute Tool:** Call the selected tool.
+6.  **Process Result & Update State:** Analyze the tool output. Summarize the outcome for the user. *Crucially, recognize when actions create or modify key files (like preprocessed data or models) and implicitly update your understanding of the project state for future steps.* (e.g., If preprocessing saves to 'data/preprocessed.csv', remember this path).
+7.  **Respond & Prompt:** Inform the user of the result (e.g., "Preprocessing complete, saved to data/preprocessed.csv"). If the task is done, ask what they want to do next.
+
+**State Management:**
+* You have access to the conversation history and the current state implicitly.
+* Key state information you need to track includes: `raw_data_path`, `preprocessed_data_path`, `target_column`, `feature_columns`, `sample_id_column`, details of `trained_models` (path, type, features used), `evaluation_results` paths, generated `plots` paths, `log_rag_index_exists`, `learn_rag_index_exists`, `learn_rag_files`.
+* Use this state information when generating code for subsequent steps (e.g., use `preprocessed_data_path` when training).
+
+**Current Project State (Summary):**
+Raw Data: {initial_state.get('raw_data_path', 'Not set')}
+Preprocessed Data: {initial_state.get('preprocessed_data_path', 'Not set')}
+Target Column: {initial_state.get('target_column', 'Not set')}
+Models Trained: {list(initial_state.get('trained_models', {}).keys())}
+Log RAG Ready: {initial_state.get('log_rag_index_exists', False)}
+Learn RAG Ready: {initial_state.get('learn_rag_index_exists', False)} (Files: {len(initial_state.get('learn_rag_files', []))})
 """
-        # Use the agent to generate and execute code asynchronously
-        response = await asyncio.get_event_loop().run_in_executor(
-            None, self.agent.chat, prompt
+
+        ml_agent = FunctionAgent(
+            name="MLCopilotAgent",
+            description="Handles machine learning tasks, file operations, logging, and RAG within a project.",
+            system_prompt=system_prompt,
+            llm=llm,
+            tools=tools,
+            verbose=verbose,
+            # No handoff needed for single agent workflow
         )
-        # Print the agent's response
-        print(response)
 
-        # Indicate completion
-        print("Documentation report generated successfully. What would you like to do next?")
-        user_input = input("> ").strip()
-        return ML_Copilot(user_input=user_input)
+        # Initialize the AgentWorkflow
+        super().__init__(
+            agents=[ml_agent], # Single agent for now
+            root_agent=ml_agent.name,
+            initial_state=initial_state if initial_state else {}, # Pass the loaded state
+            llm=llm, # Pass LLM for potential internal use by AgentWorkflow
+            verbose=verbose,
+            timeout=kwargs.get('timeout', 600),
+            **kwargs,
+        )
+        self.log_manager.log("INFO", "ML Copilot AgentWorkflow initialized.")
 
-    @step
-    async def stop_workflow(self, ctx: Context, ev: StopEvent) -> StopEvent:
-        print(ev.result)
+    # Override run to potentially add pre/post processing or custom event handling if needed
+    async def run(self, *args, ctx: Optional[Context] = None, **kwargs) -> Any:
+        """
+        Runs the agent workflow for one turn.
 
-# Run the Workflow
-async def main():
-    workflow = MLWorkflow(timeout=600, verbose=True)
-    await workflow.run()
+        Args:
+            *args: Positional arguments, typically the user message.
+            ctx: The workflow context containing state. If None, it will be loaded.
+            **kwargs: Keyword arguments for the workflow run.
 
-if __name__ == "__main__":
-    asyncio.run(main())
+        Returns:
+            The final response object from the agent for this turn.
+        """
+        user_msg = kwargs.get('user_msg', args[0] if args else None)
+        turn_start_time = datetime.datetime.now(datetime.timezone.utc)
+
+        if user_msg:
+             self.log_manager.log("INFO", "Received user input", data={"message": user_msg})
+
+        if ctx is None:
+             # This shouldn't happen if managed by __main__, but as a fallback:
+             logger.warning("Context not provided to workflow run, attempting to load.")
+             # Pass LLM/embed_model if they are stored attributes or accessible
+             ctx = self.memory_manager.load_context(llm=self.llm, embed_model=self.embed_model) # Ensure self.llm/self.embed_model exist
+
+        # Update context with current timestamp or other pre-run info if needed
+        current_state = await ctx.get("state", default={}) # Use await for async context access
+        current_state["last_interaction_time"] = turn_start_time.isoformat()
+        # Add current state summary to prompt dynamically if possible/needed
+        # (This might require modifying how the agent's chat history/prompt is built)
+
+        await ctx.set("state", current_state) # Use await
+
+        try:
+            # The core execution is handled by the parent AgentWorkflow.run
+            result = await super().run(*args, ctx=ctx, **kwargs) # Pass context
+
+            # Log the final output of the turn
+            # result is likely an AgentResponse object
+            final_response_text = ""
+            if hasattr(result, 'response') and result.response:
+                 final_response_text = str(result.response)
+            elif isinstance(result, str): # Fallback if it's just a string
+                 final_response_text = result
+            else:
+                 final_response_text = str(result) # Best guess
+
+            self.log_manager.log("INFO", "Agent produced final response", data={"response_snippet": final_response_text[:500] + "..."})
+
+            # --- State Update ---
+            # AgentWorkflow *should* manage the state within the context. Tools
+            # designed to accept `ctx` can also modify it using `await ctx.set(...)`.
+            # Explicit updates here might be redundant or conflict if not careful.
+            # We rely on the agent/tools updating the context passed to super().run().
+            # We retrieve the final state primarily for logging/debugging here.
+            final_state = await ctx.get("state", default={})
+            self.log_manager.log("DEBUG", "State after agent run", data=final_state)
+
+            # --- Persistence ---
+            # Saving happens in __main__ after the run completes.
+
+            return result # Return the agent's final response object
+
+        except Exception as e:
+            logger.exception("Error during AgentWorkflow run")
+            self.log_manager.log("ERROR", f"AgentWorkflow run failed: {e}", data={"user_input": user_msg}, exc_info=True)
+            # Save context even on error - saving happens in __main__ finally block
+            # self.memory_manager.save_context(ctx) # Avoid saving here, let __main__ handle it
+            # Return a user-friendly error message
+            return f"An error occurred while processing your request: {e}. Please check the logs for details or try rephrasing your request."
